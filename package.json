@@ -2,12 +2,13 @@
   "name": "security-copilot-snippets",
   "displayName": "Microsoft Security Copilot Snippets",
   "description": "Code snippets and templates for Microsoft Security Copilot agent, plugin, and OpenAPI manifest development. Quickly scaffold YAML manifests for API, KQL, GPT, Agent, and LogicApp skill formats.",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "publisher": "mrbrahmbhatt",
   "author": {
     "name": "Mrunal Brahmbhatt"
   },
   "license": "MIT",
+  "icon": "images/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrunalbrahmbhatt/security-copilot-snippets"
@@ -19,6 +20,8 @@
     "Snippets",
     "Other"
   ],
+  "extensionDependencies": [],
+  "extensionPack": [],
   "keywords": [
     "security copilot",
     "microsoft security",
@@ -30,7 +33,10 @@
     "manifest",
     "copilot",
     "defender",
-    "sentinel"
+    "sentinel",
+    "promptbook",
+    "MCP",
+    "model context protocol"
   ],
   "activationEvents": [
     "onLanguage:yaml",
@@ -80,6 +86,22 @@
       {
         "command": "securityCopilot.showTemplateMenu",
         "title": "Security Copilot: Show All Templates"
+      },
+      {
+        "command": "securityCopilot.insertMcpPlugin",
+        "title": "Security Copilot: Insert MCP Plugin Template"
+      },
+      {
+        "command": "securityCopilot.insertPromptbook",
+        "title": "Security Copilot: Insert Promptbook Template"
+      },
+      {
+        "command": "securityCopilot.insertMultiToolAgent",
+        "title": "Security Copilot: Insert Multi-Tool Agent Template"
+      },
+      {
+        "command": "securityCopilot.newPluginFile",
+        "title": "Security Copilot: New Plugin File..."
       }
     ],
     "menus": {
@@ -116,6 +138,18 @@
           "group": "plugins"
         },
         {
+          "command": "securityCopilot.insertMcpPlugin",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertPromptbook",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertMultiToolAgent",
+          "group": "agents"
+        },
+        {
           "command": "securityCopilot.insertOpenApiSpec",
           "group": "openapi"
         }
@@ -125,6 +159,12 @@
       {
         "id": "securityCopilot.templates",
         "label": "Security Copilot Templates"
+      }
+    ],
+    "yamlValidation": [
+      {
+        "fileMatch": ["**/manifest.yaml", "**/manifest.yml", "**/*-plugin.yaml", "**/*-agent.yaml", "**/*Plugin.yaml", "**/*Agent.yaml"],
+        "url": "./schemas/security-copilot-manifest.schema.json"
       }
     ]
   },

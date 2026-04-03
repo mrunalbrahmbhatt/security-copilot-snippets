@@ -1,0 +1,499 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Microsoft Security Copilot Manifest",
+  "description": "Schema for Microsoft Security Copilot agent and plugin manifest YAML files",
+  "type": "object",
+  "properties": {
+    "Descriptor": {
+      "type": "object",
+      "description": "Plugin/skillset metadata",
+      "required": ["Name", "Description"],
+      "properties": {
+        "Name": {
+          "type": "string",
+          "description": "Internal name of the skill set. Must be unique in the workspace. No / \\ ? # @ or whitespace.",
+          "pattern": "^[^/\\\\?#@\\s]+$"
+        },
+        "DisplayName": {
+          "type": "string",
+          "description": "Human-readable name of the skill set."
+        },
+        "Description": {
+          "type": "string",
+          "description": "Human-readable description of the skill set.",
+          "minLength": 1
+        },
+        "CatalogScope": {
+          "type": "string",
+          "description": "Scope of the plugin catalog.",
+          "enum": ["UserWorkspace", "Tenant"]
+        },
+        "Icon": {
+          "type": "string",
+          "description": "Icon for the plugin."
+        },
+        "SupportedAuthTypes": {
+          "type": "array",
+          "description": "List of supported authentication types.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Basic",
+              "ApiKey",
+              "ServiceHttp",
+              "OAuthAuthorizationCodeFlow",
+              "OAuthClientCredentialsFlow",
+              "OAuthPasswordGrantFlow",
+              "AAD",
+              "AADDelegated"
+            ]
+          }
+        },
+        "Authorization": {
+          "type": "object",
+          "description": "Authorization configuration for the plugin.",
+          "properties": {
+            "Type": {
+              "type": "string",
+              "description": "Authentication type.",
+              "enum": [
+                "AAD",
+                "AADDelegated",
+                "Basic",
+                "APIKey",
+                "ApiKey",
+                "ServiceHttp",
+                "OAuthAuthorizationCodeFlow",
+                "OAuthClientCredentialsFlow",
+                "OAuthPasswordGrantFlow"
+              ]
+            },
+            "EntraScopes": {
+              "type": "string",
+              "description": "Comma-separated list of Microsoft Entra scopes (for AAD/AADDelegated)."
+            },
+            "Key": {
+              "type": "string",
+              "description": "Header/query parameter name for API key auth."
+            },
+            "Location": {
+              "type": "string",
+              "description": "Location of the API key.",
+              "enum": ["Header", "QueryParams"]
+            },
+            "AuthScheme": {
+              "type": "string",
+              "description": "Authentication scheme prepended to value. Acceptable: empty string, Bearer, or Basic."
+            },
+            "Value": {
+              "type": "string",
+              "description": "The key/token value."
+            },
+            "AccessToken": {
+              "type": "string",
+              "description": "Access token for ServiceHttp auth."
+            },
+            "ClientId": {
+              "type": "string",
+              "description": "Client ID for OAuth flows."
+            },
+            "ClientSecret": {
+              "type": "string",
+              "description": "Client secret for OAuth flows."
+            },
+            "AuthorizationEndpoint": {
+              "type": "string",
+              "description": "Authorization endpoint URL (for OAuthAuthorizationCodeFlow)."
+            },
+            "TokenEndpoint": {
+              "type": "string",
+              "description": "Token endpoint URL (for OAuth flows)."
+            },
+            "Scopes": {
+              "type": "string",
+              "description": "Comma-separated list of OAuth scopes."
+            },
+            "AuthorizationContentType": {
+              "type": "string",
+              "description": "Content type for token request. Default: application/x-www-form-urlencoded."
+            },
+            "Username": {
+              "type": "string",
+              "description": "Username for Basic auth."
+            },
+            "Password": {
+              "type": "string",
+              "description": "Password for Basic auth."
+            }
+          },
+          "required": ["Type"]
+        },
+        "Settings": {
+          "type": "array",
+          "description": "Configurable settings for the plugin.",
+          "items": {
+            "type": "object",
+            "required": ["Name"],
+            "properties": {
+              "Name": {
+                "type": "string",
+                "description": "Setting name."
+              },
+              "Label": {
+                "type": "string",
+                "description": "Display label for the setting."
+              },
+              "Description": {
+                "type": "string",
+                "description": "Setting description."
+              },
+              "HintText": {
+                "type": "string",
+                "description": "Hint text shown to the user."
+              },
+              "SettingType": {
+                "type": "string",
+                "description": "Type of the setting.",
+                "enum": ["String", "Number", "Boolean"]
+              },
+              "Required": {
+                "type": "boolean",
+                "description": "Whether the setting is required."
+              }
+            }
+          }
+        }
+      }
+    },
+    "AgentDefinitions": {
+      "type": "array",
+      "description": "Agent configuration definitions.",
+      "items": {
+        "type": "object",
+        "required": ["Name", "DisplayName", "Description", "Publisher", "Product", "RequiredSkillsets"],
+        "properties": {
+          "Name": {
+            "type": "string",
+            "description": "Agent name. No whitespace or periods.",
+            "pattern": "^[^\\s.]+$"
+          },
+          "DisplayName": {
+            "type": "string",
+            "description": "User-friendly name for UI display."
+          },
+          "Description": {
+            "type": "string",
+            "description": "Human-readable summary of the agent's purpose."
+          },
+          "Publisher": {
+            "type": "string",
+            "description": "Name of the agent's publisher."
+          },
+          "Product": {
+            "type": "string",
+            "description": "Source product associated with the agent."
+          },
+          "RequiredSkillsets": {
+            "type": "array",
+            "description": "Skillsets required for the agent to function.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "AgentSingleInstanceConstraint": {
+            "type": "string",
+            "description": "Where the agent can be deployed.",
+            "enum": ["None", "Workspace", "Tenant"]
+          },
+          "PreviewState": {
+            "type": "string",
+            "description": "Preview state of the agent.",
+            "enum": ["Private", "Public"]
+          },
+          "PublisherSource": {
+            "type": "string",
+            "description": "Source of the publisher."
+          },
+          "WorkspaceId": {
+            "type": "string",
+            "description": "Workspace ID."
+          },
+          "Settings": {
+            "type": "array",
+            "description": "Agent-level settings.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Name": { "type": "string" },
+                "Label": { "type": "string" },
+                "Description": { "type": "string" },
+                "HintText": { "type": "string" },
+                "SettingType": {
+                  "type": "string",
+                  "enum": ["String", "Number", "Boolean"]
+                },
+                "Required": { "type": "boolean" }
+              }
+            }
+          },
+          "Triggers": {
+            "type": "array",
+            "description": "Defines how and when the agent is triggered.",
+            "items": {
+              "type": "object",
+              "required": ["Name"],
+              "properties": {
+                "Name": {
+                  "type": "string",
+                  "description": "Trigger name. No whitespace.",
+                  "pattern": "^\\S+$"
+                },
+                "DefaultPeriodSeconds": {
+                  "type": "integer",
+                  "description": "Interval in seconds for scheduled execution. Set to 0 to disable.",
+                  "minimum": 0
+                },
+                "DefaultPollPeriodSeconds": {
+                  "type": "integer",
+                  "description": "Poll interval in seconds. Set to 0 for interactive agents.",
+                  "minimum": 0
+                },
+                "FetchSkill": {
+                  "type": "string",
+                  "description": "Skill to fetch data. Must be namespaced: SkillsetName.SkillName"
+                },
+                "ProcessSkill": {
+                  "type": "string",
+                  "description": "Skill to process data. Must be namespaced: SkillsetName.SkillName"
+                },
+                "PromptSkill": {
+                  "type": "string",
+                  "description": "Skill for interactive agent prompts. Required for interactive agents."
+                },
+                "Settings": {
+                  "type": "object",
+                  "description": "Trigger-specific settings."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SkillGroups": {
+      "type": "array",
+      "description": "Tool definitions grouped by format.",
+      "items": {
+        "type": "object",
+        "required": ["Format"],
+        "properties": {
+          "Format": {
+            "type": "string",
+            "description": "Tool format type.",
+            "enum": ["API", "GPT", "AGENT", "Agent", "KQL", "LogicApp", "MCP"]
+          },
+          "Settings": {
+            "type": "object",
+            "description": "Format-level settings (used by API format).",
+            "properties": {
+              "OpenApiSpecUrl": {
+                "type": "string",
+                "description": "URL to the public OpenAPI specification."
+              },
+              "EndpointUrl": {
+                "type": "string",
+                "description": "URL to the public endpoint."
+              },
+              "EndpointUrlSettingName": {
+                "type": "string",
+                "description": "Setting name for configurable endpoint URL."
+              },
+              "EnableSkillContextApi": {
+                "type": "boolean",
+                "description": "Enable SkillContext API access for API tools."
+              },
+              "PackageUrl": {
+                "type": "string",
+                "description": "Public URL for zip file with KQL template."
+              }
+            }
+          },
+          "Skills": {
+            "type": "array",
+            "description": "List of skills (tools) in this group.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Name": {
+                  "type": "string",
+                  "description": "Internal name for this tool. No whitespace or periods.",
+                  "pattern": "^[^\\s.]+$"
+                },
+                "DisplayName": {
+                  "type": "string",
+                  "description": "Human-readable name for this tool."
+                },
+                "Description": {
+                  "type": "string",
+                  "description": "Human-readable description for this tool."
+                },
+                "Interfaces": {
+                  "type": "array",
+                  "description": "Interfaces implemented by this skill.",
+                  "items": {
+                    "type": "string",
+                    "enum": ["Agent", "InteractiveAgent"]
+                  }
+                },
+                "Inputs": {
+                  "type": "array",
+                  "description": "Input parameters for the skill.",
+                  "items": {
+                    "type": "object",
+                    "required": ["Name"],
+                    "properties": {
+                      "Name": {
+                        "type": "string",
+                        "description": "Parameter name."
+                      },
+                      "Description": {
+                        "type": "string",
+                        "description": "Parameter description."
+                      },
+                      "Required": {
+                        "type": "boolean",
+                        "description": "Whether the parameter is required."
+                      },
+                      "DefaultValue": {
+                        "type": "string",
+                        "description": "Default value for the parameter."
+                      }
+                    }
+                  }
+                },
+                "Settings": {
+                  "type": "object",
+                  "description": "Skill-level settings, varies by format.",
+                  "properties": {
+                    "ModelName": {
+                      "type": "string",
+                      "description": "GPT model name. Must be gpt-4.1.",
+                      "enum": ["gpt-4.1"]
+                    },
+                    "Model": {
+                      "type": "string",
+                      "description": "Model for Agent format. Must be gpt-4.1.",
+                      "enum": ["gpt-4.1"]
+                    },
+                    "Template": {
+                      "type": "string",
+                      "description": "GPT prompt template or KQL query template. Up to 80,000 chars.",
+                      "maxLength": 80000
+                    },
+                    "TemplateUrl": {
+                      "type": "string",
+                      "description": "Public URL to download KQL template."
+                    },
+                    "TemplateFile": {
+                      "type": "string",
+                      "description": "Relative path to KQL template within PackageUrl zip."
+                    },
+                    "Instructions": {
+                      "type": "string",
+                      "description": "Agent instructions defining behavior and mission."
+                    },
+                    "Target": {
+                      "type": "string",
+                      "description": "KQL target platform.",
+                      "enum": ["Defender", "Sentinel", "Kusto"]
+                    },
+                    "TenantId": {
+                      "type": "string",
+                      "description": "AAD Tenant ID (for Sentinel target)."
+                    },
+                    "SubscriptionId": {
+                      "type": "string",
+                      "description": "Azure Subscription ID (for Sentinel/LogicApp)."
+                    },
+                    "ResourceGroupName": {
+                      "type": "string",
+                      "description": "Azure Resource Group name (for Sentinel)."
+                    },
+                    "ResourceGroup": {
+                      "type": "string",
+                      "description": "Azure Resource Group name (for LogicApp)."
+                    },
+                    "WorkspaceName": {
+                      "type": "string",
+                      "description": "Sentinel workspace name."
+                    },
+                    "WorkflowName": {
+                      "type": "string",
+                      "description": "Logic App workflow name."
+                    },
+                    "TriggerName": {
+                      "type": "string",
+                      "description": "Logic App trigger name."
+                    },
+                    "Cluster": {
+                      "type": "string",
+                      "description": "Kusto cluster URL."
+                    },
+                    "Database": {
+                      "type": "string",
+                      "description": "Kusto database name."
+                    },
+                    "OpenApiSpecUrl": {
+                      "type": "string",
+                      "description": "URL to OpenAPI spec (at skill level)."
+                    },
+                    "EndpointUrl": {
+                      "type": "string",
+                      "description": "API endpoint URL (at skill level)."
+                    }
+                  }
+                },
+                "ChildSkills": {
+                  "type": "array",
+                  "description": "List of child skill names the agent can invoke.",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "SuggestedPrompts": {
+                  "type": "array",
+                  "description": "Suggested prompts for interactive agents.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "Title": {
+                        "type": "string",
+                        "description": "Title of the prompt."
+                      },
+                      "Prompt": {
+                        "type": "string",
+                        "description": "Actual prompt text."
+                      },
+                      "Personas": {
+                        "type": "array",
+                        "description": "Persona types the prompt is aligned to.",
+                        "items": { "type": "string" }
+                      },
+                      "IsStarterAgent": {
+                        "type": "boolean",
+                        "description": "Whether this is a starter prompt."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["Descriptor"],
+  "additionalProperties": false
+}
