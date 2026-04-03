@@ -2,7 +2,7 @@
   "name": "security-copilot-snippets",
   "displayName": "Microsoft Security Copilot Snippets",
   "description": "Code snippets and templates for Microsoft Security Copilot agent, plugin, and OpenAPI manifest development. Quickly scaffold YAML manifests for API, KQL, GPT, Agent, and LogicApp skill formats.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "publisher": "mrbrahmbhatt",
   "author": {
     "name": "Mrunal Brahmbhatt"
