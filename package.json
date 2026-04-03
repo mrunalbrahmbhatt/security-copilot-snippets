@@ -1,0 +1,143 @@
+{
+  "name": "security-copilot-snippets",
+  "displayName": "Microsoft Security Copilot Snippets",
+  "description": "Code snippets and templates for Microsoft Security Copilot agent, plugin, and OpenAPI manifest development. Quickly scaffold YAML manifests for API, KQL, GPT, Agent, and LogicApp skill formats.",
+  "version": "1.0.1",
+  "publisher": "mrbrahmbhatt",
+  "author": {
+    "name": "Mrunal Brahmbhatt"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrunalbrahmbhatt/security-copilot-snippets"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "security copilot",
+    "microsoft security",
+    "yaml",
+    "openapi",
+    "plugin",
+    "agent",
+    "KQL",
+    "manifest",
+    "copilot",
+    "defender",
+    "sentinel"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:json"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "yaml",
+        "path": "./snippets/security-copilot-yaml.code-snippets"
+      },
+      {
+        "language": "yaml",
+        "path": "./snippets/security-copilot-openapi.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "securityCopilot.insertApiPlugin",
+        "title": "Security Copilot: Insert API Plugin Template"
+      },
+      {
+        "command": "securityCopilot.insertKqlPlugin",
+        "title": "Security Copilot: Insert KQL Plugin Template"
+      },
+      {
+        "command": "securityCopilot.insertGptPlugin",
+        "title": "Security Copilot: Insert GPT Skill Template"
+      },
+      {
+        "command": "securityCopilot.insertAgentManifest",
+        "title": "Security Copilot: Insert Agent Manifest Template"
+      },
+      {
+        "command": "securityCopilot.insertLogicAppPlugin",
+        "title": "Security Copilot: Insert Logic App Plugin Template"
+      },
+      {
+        "command": "securityCopilot.insertInteractiveAgent",
+        "title": "Security Copilot: Insert Interactive Agent Template"
+      },
+      {
+        "command": "securityCopilot.insertOpenApiSpec",
+        "title": "Security Copilot: Insert OpenAPI Specification Template"
+      },
+      {
+        "command": "securityCopilot.showTemplateMenu",
+        "title": "Security Copilot: Show All Templates"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "securityCopilot.templates",
+          "group": "securityCopilot",
+          "when": "resourceLangId == yaml || resourceLangId == json"
+        }
+      ],
+      "securityCopilot.templates": [
+        {
+          "command": "securityCopilot.insertApiPlugin",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertKqlPlugin",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertGptPlugin",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertAgentManifest",
+          "group": "agents"
+        },
+        {
+          "command": "securityCopilot.insertInteractiveAgent",
+          "group": "agents"
+        },
+        {
+          "command": "securityCopilot.insertLogicAppPlugin",
+          "group": "plugins"
+        },
+        {
+          "command": "securityCopilot.insertOpenApiSpec",
+          "group": "openapi"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "securityCopilot.templates",
+        "label": "Security Copilot Templates"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}
