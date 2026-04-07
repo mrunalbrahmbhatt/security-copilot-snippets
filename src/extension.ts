@@ -891,14 +891,16 @@ class SecurityCopilotCompletionProvider implements vscode.CompletionItemProvider
         const linePrefix = line.substring(0, position.character);
 
         // Detect the context: are we after a key's colon (value position)?
-        const keyValueMatch = linePrefix.match(/^\s*(\w+)\s*:\s*$/);
+        // Handles both "  Key: " and "  - Key: " (array item)
+        const keyValueMatch = linePrefix.match(/^\s*-?\s*(\w+)\s*:\s*$/);
         if (keyValueMatch) {
             const key = keyValueMatch[1];
             return this.getEnumCompletions(key);
         }
 
         // Detect if we're typing a value after "Key: " (partial value)
-        const partialValueMatch = linePrefix.match(/^\s*(\w+)\s*:\s+(\S*)$/);
+        // Handles both "  Key: val" and "  - Key: val"
+        const partialValueMatch = linePrefix.match(/^\s*-?\s*(\w+)\s*:\s+(\S*)$/);
         if (partialValueMatch) {
             const key = partialValueMatch[1];
             return this.getEnumCompletions(key);
