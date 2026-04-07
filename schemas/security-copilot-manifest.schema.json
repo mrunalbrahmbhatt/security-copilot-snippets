@@ -3,38 +3,291 @@
   "title": "Microsoft Security Copilot Manifest",
   "description": "Schema for Microsoft Security Copilot agent and plugin manifest YAML files",
   "type": "object",
+  "defaultSnippets": [
+    {
+      "label": "API Plugin",
+      "description": "Create an API plugin manifest",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MyApiPlugin}",
+          "DisplayName": "${2:My API Plugin}",
+          "Description": "${3:Description of the plugin}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "SkillGroups": [
+          {
+            "Format": "API",
+            "Settings": {
+              "OpenApiSpecUrl": "${4:https://example.com/openapi.yaml}",
+              "EndpointUrl": "${5:https://api.example.com}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "KQL Plugin (Defender)",
+      "description": "Create a KQL plugin targeting Defender XDR",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MyKqlPlugin}",
+          "DisplayName": "${2:My KQL Plugin}",
+          "Description": "${3:KQL-based plugin for Defender XDR}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "SkillGroups": [
+          {
+            "Format": "KQL",
+            "Skills": [
+              {
+                "Name": "${4:MyKqlSkill}",
+                "DisplayName": "${5:My KQL Skill}",
+                "Description": "${6:Description of the skill}",
+                "Inputs": [
+                  {
+                    "Name": "${7:inputParam}",
+                    "Description": "${8:Input parameter description}",
+                    "Required": true
+                  }
+                ],
+                "Settings": {
+                  "Target": "Defender",
+                  "Template": "${9:// KQL query here}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "KQL Plugin (Sentinel)",
+      "description": "Create a KQL plugin targeting Sentinel",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MySentinelPlugin}",
+          "DisplayName": "${2:My Sentinel Plugin}",
+          "Description": "${3:KQL-based plugin for Sentinel}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "SkillGroups": [
+          {
+            "Format": "KQL",
+            "Skills": [
+              {
+                "Name": "${4:MySentinelSkill}",
+                "DisplayName": "${5:My Sentinel Skill}",
+                "Description": "${6:Description of the skill}",
+                "Inputs": [
+                  {
+                    "Name": "${7:inputParam}",
+                    "Description": "${8:Input parameter description}",
+                    "Required": true
+                  }
+                ],
+                "Settings": {
+                  "Target": "Sentinel",
+                  "TenantId": "${9:your-tenant-id}",
+                  "SubscriptionId": "${10:your-subscription-id}",
+                  "ResourceGroupName": "${11:your-resource-group}",
+                  "WorkspaceName": "${12:your-workspace-name}",
+                  "Template": "${13:// KQL query here}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "GPT Skill Plugin",
+      "description": "Create a GPT skill plugin",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MyGptPlugin}",
+          "DisplayName": "${2:My GPT Plugin}",
+          "Description": "${3:GPT-based plugin}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "SkillGroups": [
+          {
+            "Format": "GPT",
+            "Skills": [
+              {
+                "Name": "${4:MyGptSkill}",
+                "DisplayName": "${5:My GPT Skill}",
+                "Description": "${6:Description of the skill}",
+                "Settings": {
+                  "ModelName": "gpt-4.1",
+                  "Template": "${7:You are a helpful assistant. Analyze the following: {{input}}}"
+                },
+                "Inputs": [
+                  {
+                    "Name": "${8:input}",
+                    "Description": "${9:The input to analyze}",
+                    "Required": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Agent with Skills",
+      "description": "Create an agent definition with skill groups",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MyAgentSkillset}",
+          "DisplayName": "${2:My Agent Skillset}",
+          "Description": "${3:Skillset for the agent}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "AgentDefinitions": [
+          {
+            "Name": "${4:MyAgent}",
+            "DisplayName": "${5:My Agent}",
+            "Description": "${6:Agent description}",
+            "Publisher": "${7:MyOrg}",
+            "Product": "${8:MyProduct}",
+            "RequiredSkillsets": ["${1:MyAgentSkillset}"]
+          }
+        ],
+        "SkillGroups": [
+          {
+            "Format": "AGENT",
+            "Skills": [
+              {
+                "Name": "${9:OrchestratorSkill}",
+                "DisplayName": "${10:Orchestrator}",
+                "Description": "${11:Main orchestrator skill}",
+                "Settings": {
+                  "Model": "gpt-4.1",
+                  "Instructions": "${12:You are an agent that...}"
+                },
+                "Interfaces": ["Agent"],
+                "ChildSkills": ["${1:MyAgentSkillset}.${13:ChildSkillName}"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "Logic App Plugin",
+      "description": "Create a Logic App plugin",
+      "body": {
+        "Descriptor": {
+          "Name": "${1:MyLogicAppPlugin}",
+          "DisplayName": "${2:My Logic App Plugin}",
+          "Description": "${3:Logic App integration plugin}",
+          "CatalogScope": "UserWorkspace"
+        },
+        "SkillGroups": [
+          {
+            "Format": "LogicApp",
+            "Skills": [
+              {
+                "Name": "${4:MyLogicAppSkill}",
+                "DisplayName": "${5:My Logic App Skill}",
+                "Description": "${6:Triggers a Logic App workflow}",
+                "Settings": {
+                  "SubscriptionId": "${7:your-subscription-id}",
+                  "ResourceGroup": "${8:your-resource-group}",
+                  "WorkflowName": "${9:your-workflow-name}",
+                  "TriggerName": "${10:manual}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
   "properties": {
     "Descriptor": {
       "type": "object",
-      "description": "Plugin/skillset metadata",
+      "description": "Plugin/skillset metadata — defines the identity, display info, and authentication for your plugin.",
+      "markdownDescription": "**Plugin/Skillset Metadata**\n\nDefines identity, display info, and authentication.\n\n- `Name` — Internal unique identifier (no spaces/special chars)\n- `DisplayName` — Shown in the Security Copilot UI\n- `Description` — Explains what the plugin does\n- `SupportedAuthTypes` — Auth methods your API supports",
       "required": ["Name", "Description"],
+      "defaultSnippets": [
+        {
+          "label": "Descriptor (basic)",
+          "description": "Basic descriptor with name and description",
+          "body": {
+            "Name": "${1:MyPlugin}",
+            "DisplayName": "${2:My Plugin}",
+            "Description": "${3:Plugin description}",
+            "CatalogScope": "UserWorkspace"
+          }
+        },
+        {
+          "label": "Descriptor (with AAD auth)",
+          "description": "Descriptor with AAD authentication",
+          "body": {
+            "Name": "${1:MyPlugin}",
+            "DisplayName": "${2:My Plugin}",
+            "Description": "${3:Plugin description}",
+            "CatalogScope": "UserWorkspace",
+            "SupportedAuthTypes": ["AAD"],
+            "Authorization": {
+              "Type": "AAD",
+              "EntraScopes": "${4:https://graph.microsoft.com/.default}"
+            }
+          }
+        },
+        {
+          "label": "Descriptor (with API Key auth)",
+          "description": "Descriptor with API Key authentication",
+          "body": {
+            "Name": "${1:MyPlugin}",
+            "DisplayName": "${2:My Plugin}",
+            "Description": "${3:Plugin description}",
+            "CatalogScope": "UserWorkspace",
+            "SupportedAuthTypes": ["ApiKey"],
+            "Authorization": {
+              "Type": "ApiKey",
+              "Key": "${4:X-Api-Key}",
+              "Location": "Header",
+              "Value": "${5:your-api-key}"
+            }
+          }
+        }
+      ],
       "properties": {
         "Name": {
           "type": "string",
-          "description": "Internal name of the skill set. Must be unique in the workspace. No / \\ ? # @ or whitespace.",
+          "description": "Internal name of the skill set. Must be unique. No / \\ ? # @ or whitespace.",
+          "markdownDescription": "**Internal Name** — Unique identifier for the skill set.\n\n⚠️ No `/`, `\\`, `?`, `#`, `@`, or whitespace allowed.\n\nExample: `MyApiPlugin`, `ThreatIntelLookup`",
           "pattern": "^[^/\\\\?#@\\s]+$"
         },
         "DisplayName": {
           "type": "string",
-          "description": "Human-readable name of the skill set."
+          "description": "Human-readable name shown in the Security Copilot UI.",
+          "markdownDescription": "**Display Name** — Human-readable name shown in the Security Copilot UI.\n\nExample: `My Threat Intel Plugin`"
         },
         "Description": {
           "type": "string",
           "description": "Human-readable description of the skill set.",
+          "markdownDescription": "**Description** — Explains what this plugin does. This helps Security Copilot decide when to invoke your skills.\n\nTip: Be specific about capabilities.",
           "minLength": 1
         },
         "CatalogScope": {
           "type": "string",
-          "description": "Scope of the plugin catalog.",
-          "enum": ["UserWorkspace", "Tenant"]
+          "description": "Scope of the plugin catalog. UserWorkspace = only you, Tenant = entire organization.",
+          "markdownDescription": "**Catalog Scope** — Who can see this plugin.\n\n- `UserWorkspace` — Only the user who uploaded it\n- `Tenant` — Everyone in the organization",
+          "enum": ["UserWorkspace", "Tenant"],
+          "default": "UserWorkspace"
         },
         "Icon": {
           "type": "string",
-          "description": "Icon for the plugin."
+          "description": "Icon URL or data URI for the plugin."
         },
         "SupportedAuthTypes": {
           "type": "array",
           "description": "List of supported authentication types.",
+          "markdownDescription": "**Supported Auth Types** — Authentication methods your API supports.\n\n- `None` — No auth required\n- `AAD` — Microsoft Entra ID (service-to-service)\n- `AADDelegated` — Microsoft Entra ID (delegated/user context)\n- `ApiKey` — API key in header or query\n- `Basic` — Basic username/password\n- `OAuthAuthorizationCodeFlow` — OAuth 2.0 auth code\n- `OAuthClientCredentialsFlow` — OAuth 2.0 client credentials\n- `ServiceHttp` — Custom HTTP auth",
           "items": {
             "type": "string",
             "enum": [
@@ -53,15 +306,87 @@
         "Authorization": {
           "type": "object",
           "description": "Authorization configuration for the plugin.",
+          "markdownDescription": "**Authorization** — Configure how Security Copilot authenticates to your API.",
+          "required": ["Type"],
+          "defaultSnippets": [
+            {
+              "label": "AAD Auth",
+              "body": {
+                "Type": "AAD",
+                "EntraScopes": "${1:https://graph.microsoft.com/.default}"
+              }
+            },
+            {
+              "label": "AADDelegated Auth",
+              "body": {
+                "Type": "AADDelegated",
+                "EntraScopes": "${1:https://graph.microsoft.com/.default}"
+              }
+            },
+            {
+              "label": "API Key Auth (Header)",
+              "body": {
+                "Type": "ApiKey",
+                "Key": "${1:X-Api-Key}",
+                "Location": "Header",
+                "Value": "${2:your-api-key}"
+              }
+            },
+            {
+              "label": "API Key Auth (Query)",
+              "body": {
+                "Type": "ApiKey",
+                "Key": "${1:key}",
+                "Location": "QueryParams",
+                "Value": "${2:your-api-key}"
+              }
+            },
+            {
+              "label": "Basic Auth",
+              "body": {
+                "Type": "Basic",
+                "Username": "${1:username}",
+                "Password": "${2:password}"
+              }
+            },
+            {
+              "label": "OAuth Client Credentials",
+              "body": {
+                "Type": "OAuthClientCredentialsFlow",
+                "ClientId": "${1:client-id}",
+                "ClientSecret": "${2:client-secret}",
+                "TokenEndpoint": "${3:https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token}",
+                "Scopes": "${4:https://graph.microsoft.com/.default}"
+              }
+            },
+            {
+              "label": "OAuth Authorization Code",
+              "body": {
+                "Type": "OAuthAuthorizationCodeFlow",
+                "ClientId": "${1:client-id}",
+                "ClientSecret": "${2:client-secret}",
+                "AuthorizationEndpoint": "${3:https://login.microsoftonline.com/tenant-id/oauth2/v2.0/authorize}",
+                "TokenEndpoint": "${4:https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token}",
+                "Scopes": "${5:openid profile}"
+              }
+            },
+            {
+              "label": "ServiceHttp Auth",
+              "body": {
+                "Type": "ServiceHttp",
+                "AccessToken": "${1:your-access-token}"
+              }
+            }
+          ],
           "properties": {
             "Type": {
               "type": "string",
               "description": "Authentication type.",
+              "markdownDescription": "**Auth Type** — The authentication method.\n\n- `AAD` — Service-to-service Microsoft Entra auth\n- `AADDelegated` — Delegated user-context Entra auth\n- `ApiKey` — API key (header or query param)\n- `Basic` — Username/password\n- `OAuthAuthorizationCodeFlow` — OAuth 2.0 auth code flow\n- `OAuthClientCredentialsFlow` — OAuth 2.0 client credentials\n- `ServiceHttp` — Custom HTTP header auth",
               "enum": [
                 "AAD",
                 "AADDelegated",
                 "Basic",
-                "APIKey",
                 "ApiKey",
                 "ServiceHttp",
                 "OAuthAuthorizationCodeFlow",
@@ -71,20 +396,32 @@
             },
             "EntraScopes": {
               "type": "string",
-              "description": "Comma-separated list of Microsoft Entra scopes (for AAD/AADDelegated)."
+              "description": "Comma-separated list of Microsoft Entra scopes (for AAD/AADDelegated).",
+              "markdownDescription": "**Entra Scopes** — Microsoft Entra ID permission scopes.\n\nExample: `https://graph.microsoft.com/.default`",
+              "examples": [
+                "https://graph.microsoft.com/.default",
+                "https://management.azure.com/.default",
+                "https://api.securitycenter.microsoft.com/.default"
+              ]
             },
             "Key": {
               "type": "string",
-              "description": "Header/query parameter name for API key auth."
+              "description": "Header or query parameter name for API key auth.",
+              "markdownDescription": "**Key Name** — The HTTP header or query parameter name.\n\nExamples: `X-Api-Key`, `Authorization`, `api-key`",
+              "examples": ["X-Api-Key", "Authorization", "api-key", "Ocp-Apim-Subscription-Key"]
             },
             "Location": {
               "type": "string",
-              "description": "Location of the API key.",
-              "enum": ["Header", "QueryParams"]
+              "description": "Where to send the API key.",
+              "markdownDescription": "**Key Location** — Where to include the API key.\n\n- `Header` — In an HTTP header\n- `QueryParams` — As a URL query parameter",
+              "enum": ["Header", "QueryParams"],
+              "default": "Header"
             },
             "AuthScheme": {
               "type": "string",
-              "description": "Authentication scheme prepended to value. Acceptable: empty string, Bearer, or Basic."
+              "description": "Authentication scheme prepended to value.",
+              "markdownDescription": "**Auth Scheme** — Prefix for the auth value.\n\n- Empty string `\"\"` — No prefix\n- `Bearer` — Bearer token\n- `Basic` — Basic auth",
+              "examples": ["", "Bearer", "Basic"]
             },
             "Value": {
               "type": "string",
@@ -104,11 +441,13 @@
             },
             "AuthorizationEndpoint": {
               "type": "string",
-              "description": "Authorization endpoint URL (for OAuthAuthorizationCodeFlow)."
+              "description": "Authorization endpoint URL (for OAuthAuthorizationCodeFlow).",
+              "examples": ["https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/authorize"]
             },
             "TokenEndpoint": {
               "type": "string",
-              "description": "Token endpoint URL (for OAuth flows)."
+              "description": "Token endpoint URL (for OAuth flows).",
+              "examples": ["https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token"]
             },
             "Scopes": {
               "type": "string",
@@ -116,7 +455,8 @@
             },
             "AuthorizationContentType": {
               "type": "string",
-              "description": "Content type for token request. Default: application/x-www-form-urlencoded."
+              "description": "Content type for token request.",
+              "default": "application/x-www-form-urlencoded"
             },
             "Username": {
               "type": "string",
@@ -126,40 +466,76 @@
               "type": "string",
               "description": "Password for Basic auth."
             }
-          },
-          "required": ["Type"]
+          }
         },
         "Settings": {
           "type": "array",
-          "description": "Configurable settings for the plugin.",
+          "description": "Configurable settings for the plugin. These appear in the Security Copilot UI when configuring the plugin.",
+          "markdownDescription": "**Plugin Settings** — User-configurable parameters shown in Security Copilot UI.\n\nUse settings for values like API endpoints, tenant IDs, or thresholds that vary per deployment.",
           "items": {
             "type": "object",
             "required": ["Name"],
+            "defaultSnippets": [
+              {
+                "label": "Setting (string)",
+                "body": {
+                  "Name": "${1:SettingName}",
+                  "Label": "${2:Setting Label}",
+                  "Description": "${3:Description}",
+                  "HintText": "${4:Enter value...}",
+                  "SettingType": "String",
+                  "Required": true
+                }
+              },
+              {
+                "label": "Setting (boolean)",
+                "body": {
+                  "Name": "${1:EnableFeature}",
+                  "Label": "${2:Enable Feature}",
+                  "Description": "${3:Toggle this feature}",
+                  "SettingType": "Boolean",
+                  "Required": false
+                }
+              },
+              {
+                "label": "Setting (number)",
+                "body": {
+                  "Name": "${1:MaxResults}",
+                  "Label": "${2:Maximum Results}",
+                  "Description": "${3:Maximum number of results}",
+                  "HintText": "${4:Enter a number}",
+                  "SettingType": "Number",
+                  "Required": false
+                }
+              }
+            ],
             "properties": {
               "Name": {
                 "type": "string",
-                "description": "Setting name."
+                "description": "Setting name. Reference in templates as <<SettingName>>."
               },
               "Label": {
                 "type": "string",
-                "description": "Display label for the setting."
+                "description": "Display label for the setting in the UI."
               },
               "Description": {
                 "type": "string",
-                "description": "Setting description."
+                "description": "Setting description shown to the user."
               },
               "HintText": {
                 "type": "string",
-                "description": "Hint text shown to the user."
+                "description": "Placeholder text in the input field."
               },
               "SettingType": {
                 "type": "string",
-                "description": "Type of the setting.",
-                "enum": ["String", "Number", "Boolean"]
+                "description": "Data type of the setting.",
+                "enum": ["String", "Number", "Boolean"],
+                "default": "String"
               },
               "Required": {
                 "type": "boolean",
-                "description": "Whether the setting is required."
+                "description": "Whether the setting is required.",
+                "default": true
               }
             }
           }
@@ -168,27 +544,79 @@
     },
     "AgentDefinitions": {
       "type": "array",
-      "description": "Agent configuration definitions.",
+      "description": "Agent configuration definitions. Agents orchestrate skills to automate security workflows.",
+      "markdownDescription": "**Agent Definitions** — Define autonomous or interactive agents.\n\nAgents combine multiple skills and can be triggered on a schedule, by events, or interactively by users.",
       "items": {
         "type": "object",
         "required": ["Name", "DisplayName", "Description", "Publisher", "Product", "RequiredSkillsets"],
+        "defaultSnippets": [
+          {
+            "label": "Agent Definition (basic)",
+            "body": {
+              "Name": "${1:MyAgent}",
+              "DisplayName": "${2:My Agent}",
+              "Description": "${3:Agent description}",
+              "Publisher": "${4:MyOrg}",
+              "Product": "${5:MyProduct}",
+              "RequiredSkillsets": ["${6:SkillsetName}"]
+            }
+          },
+          {
+            "label": "Agent Definition (interactive)",
+            "body": {
+              "Name": "${1:MyInteractiveAgent}",
+              "DisplayName": "${2:My Interactive Agent}",
+              "Description": "${3:Interactive agent description}",
+              "Publisher": "${4:MyOrg}",
+              "Product": "${5:MyProduct}",
+              "RequiredSkillsets": ["${6:SkillsetName}"],
+              "Triggers": [
+                {
+                  "Name": "${7:InteractiveTrigger}",
+                  "DefaultPollPeriodSeconds": 0,
+                  "PromptSkill": "${6:SkillsetName}.${8:PromptSkillName}"
+                }
+              ]
+            }
+          },
+          {
+            "label": "Agent Definition (scheduled)",
+            "body": {
+              "Name": "${1:MyScheduledAgent}",
+              "DisplayName": "${2:My Scheduled Agent}",
+              "Description": "${3:Scheduled agent description}",
+              "Publisher": "${4:MyOrg}",
+              "Product": "${5:MyProduct}",
+              "RequiredSkillsets": ["${6:SkillsetName}"],
+              "Triggers": [
+                {
+                  "Name": "${7:ScheduledTrigger}",
+                  "DefaultPeriodSeconds": 3600,
+                  "FetchSkill": "${6:SkillsetName}.${8:FetchSkillName}",
+                  "ProcessSkill": "${6:SkillsetName}.${9:ProcessSkillName}"
+                }
+              ]
+            }
+          }
+        ],
         "properties": {
           "Name": {
             "type": "string",
             "description": "Agent name. No whitespace or periods.",
+            "markdownDescription": "**Agent Name** — Internal identifier. No whitespace or periods.\n\nThis must match a `RequiredSkillsets` entry in the same manifest.",
             "pattern": "^[^\\s.]+$"
           },
           "DisplayName": {
             "type": "string",
-            "description": "User-friendly name for UI display."
+            "description": "User-friendly name shown in the Security Copilot UI."
           },
           "Description": {
             "type": "string",
-            "description": "Human-readable summary of the agent's purpose."
+            "description": "Summary of the agent's purpose. Used by Security Copilot for routing."
           },
           "Publisher": {
             "type": "string",
-            "description": "Name of the agent's publisher."
+            "description": "Name of the agent's publisher or organization."
           },
           "Product": {
             "type": "string",
@@ -196,20 +624,25 @@
           },
           "RequiredSkillsets": {
             "type": "array",
-            "description": "Skillsets required for the agent to function.",
+            "description": "Skillsets this agent needs. Must reference Descriptor.Name values.",
+            "markdownDescription": "**Required Skillsets** — List of skillset names this agent depends on.\n\nMust match the `Descriptor.Name` of skill manifests (can be the same file or separate files).",
             "items": {
               "type": "string"
             }
           },
           "AgentSingleInstanceConstraint": {
             "type": "string",
-            "description": "Where the agent can be deployed.",
-            "enum": ["None", "Workspace", "Tenant"]
+            "description": "Deployment constraint for the agent.",
+            "markdownDescription": "**Instance Constraint** — Where the agent can be deployed.\n\n- `None` — No constraint\n- `Workspace` — One instance per workspace\n- `Tenant` — One instance per tenant",
+            "enum": ["None", "Workspace", "Tenant"],
+            "default": "None"
           },
           "PreviewState": {
             "type": "string",
             "description": "Preview state of the agent.",
-            "enum": ["Private", "Public"]
+            "markdownDescription": "**Preview State**\n\n- `Private` — Only visible to the creator\n- `Public` — Visible to all users in scope",
+            "enum": ["Private", "Public"],
+            "default": "Private"
           },
           "PublisherSource": {
             "type": "string",
@@ -224,6 +657,18 @@
             "description": "Agent-level settings.",
             "items": {
               "type": "object",
+              "defaultSnippets": [
+                {
+                  "label": "Agent Setting",
+                  "body": {
+                    "Name": "${1:SettingName}",
+                    "Label": "${2:Setting Label}",
+                    "Description": "${3:Description}",
+                    "SettingType": "String",
+                    "Required": true
+                  }
+                }
+              ],
               "properties": {
                 "Name": { "type": "string" },
                 "Label": { "type": "string" },
@@ -231,18 +676,41 @@
                 "HintText": { "type": "string" },
                 "SettingType": {
                   "type": "string",
-                  "enum": ["String", "Number", "Boolean"]
+                  "enum": ["String", "Number", "Boolean"],
+                  "default": "String"
                 },
-                "Required": { "type": "boolean" }
+                "Required": { "type": "boolean", "default": true }
               }
             }
           },
           "Triggers": {
             "type": "array",
             "description": "Defines how and when the agent is triggered.",
+            "markdownDescription": "**Triggers** — Define how the agent is invoked.\n\n- **Scheduled**: Set `DefaultPeriodSeconds` with `FetchSkill` + `ProcessSkill`\n- **Interactive**: Set `DefaultPollPeriodSeconds: 0` with `PromptSkill`",
             "items": {
               "type": "object",
               "required": ["Name"],
+              "defaultSnippets": [
+                {
+                  "label": "Interactive Trigger",
+                  "description": "Trigger for interactive (user-initiated) agents",
+                  "body": {
+                    "Name": "${1:InteractiveTrigger}",
+                    "DefaultPollPeriodSeconds": 0,
+                    "PromptSkill": "${2:SkillsetName.SkillName}"
+                  }
+                },
+                {
+                  "label": "Scheduled Trigger",
+                  "description": "Trigger for scheduled/automated agents",
+                  "body": {
+                    "Name": "${1:ScheduledTrigger}",
+                    "DefaultPeriodSeconds": "${2:3600}",
+                    "FetchSkill": "${3:SkillsetName.FetchSkill}",
+                    "ProcessSkill": "${4:SkillsetName.ProcessSkill}"
+                  }
+                }
+              ],
               "properties": {
                 "Name": {
                   "type": "string",
@@ -251,25 +719,32 @@
                 },
                 "DefaultPeriodSeconds": {
                   "type": "integer",
-                  "description": "Interval in seconds for scheduled execution. Set to 0 to disable.",
-                  "minimum": 0
+                  "description": "Interval in seconds for scheduled execution. 0 = disabled.",
+                  "markdownDescription": "**Schedule Interval** — How often the agent runs (in seconds).\n\n- `3600` = every hour\n- `86400` = daily\n- `0` = disabled",
+                  "minimum": 0,
+                  "examples": [0, 300, 3600, 86400]
                 },
                 "DefaultPollPeriodSeconds": {
                   "type": "integer",
                   "description": "Poll interval in seconds. Set to 0 for interactive agents.",
-                  "minimum": 0
+                  "markdownDescription": "**Poll Period** — For interactive agents, set to `0`.",
+                  "minimum": 0,
+                  "default": 0
                 },
                 "FetchSkill": {
                   "type": "string",
-                  "description": "Skill to fetch data. Must be namespaced: SkillsetName.SkillName"
+                  "description": "Skill to fetch data. Format: SkillsetName.SkillName",
+                  "markdownDescription": "**Fetch Skill** — Retrieves data for the agent.\n\nFormat: `SkillsetName.SkillName`"
                 },
                 "ProcessSkill": {
                   "type": "string",
-                  "description": "Skill to process data. Must be namespaced: SkillsetName.SkillName"
+                  "description": "Skill to process data. Format: SkillsetName.SkillName",
+                  "markdownDescription": "**Process Skill** — Processes/analyzes data from the fetch step.\n\nFormat: `SkillsetName.SkillName`"
                 },
                 "PromptSkill": {
                   "type": "string",
-                  "description": "Skill for interactive agent prompts. Required for interactive agents."
+                  "description": "Skill for interactive prompts. Format: SkillsetName.SkillName",
+                  "markdownDescription": "**Prompt Skill** — The skill that handles user prompts in interactive agents.\n\nFormat: `SkillsetName.SkillName`"
                 },
                 "Settings": {
                   "type": "object",
@@ -284,26 +759,159 @@
     "SkillGroups": {
       "type": "array",
       "description": "Tool definitions grouped by format.",
+      "markdownDescription": "**Skill Groups** — Groups of skills organized by format type.\n\nEach group has a `Format` (API, KQL, GPT, AGENT, LogicApp, MCP) and a list of `Skills`.",
       "items": {
         "type": "object",
         "required": ["Format"],
+        "defaultSnippets": [
+          {
+            "label": "API Skill Group",
+            "body": {
+              "Format": "API",
+              "Settings": {
+                "OpenApiSpecUrl": "${1:https://example.com/openapi.yaml}",
+                "EndpointUrl": "${2:https://api.example.com}"
+              }
+            }
+          },
+          {
+            "label": "KQL Skill Group",
+            "body": {
+              "Format": "KQL",
+              "Skills": [
+                {
+                  "Name": "${1:MyKqlSkill}",
+                  "DisplayName": "${2:My KQL Skill}",
+                  "Description": "${3:Description}",
+                  "Inputs": [
+                    {
+                      "Name": "${4:inputParam}",
+                      "Description": "${5:Parameter description}",
+                      "Required": true
+                    }
+                  ],
+                  "Settings": {
+                    "Target": "${6|Defender,Sentinel,Kusto|}",
+                    "Template": "${7:// KQL query}"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "label": "GPT Skill Group",
+            "body": {
+              "Format": "GPT",
+              "Skills": [
+                {
+                  "Name": "${1:MyGptSkill}",
+                  "DisplayName": "${2:My GPT Skill}",
+                  "Description": "${3:Description}",
+                  "Settings": {
+                    "ModelName": "gpt-4.1",
+                    "Template": "${4:Prompt template with {{input}}}"
+                  },
+                  "Inputs": [
+                    {
+                      "Name": "${5:input}",
+                      "Description": "${6:Input description}",
+                      "Required": true
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "label": "AGENT Skill Group",
+            "body": {
+              "Format": "AGENT",
+              "Skills": [
+                {
+                  "Name": "${1:OrchestratorSkill}",
+                  "DisplayName": "${2:Orchestrator}",
+                  "Description": "${3:Orchestrator skill}",
+                  "Settings": {
+                    "Model": "gpt-4.1",
+                    "Instructions": "${4:You are an agent that...}"
+                  },
+                  "Interfaces": ["${5|Agent,InteractiveAgent|}"],
+                  "ChildSkills": ["${6:SkillsetName.SkillName}"]
+                }
+              ]
+            }
+          },
+          {
+            "label": "LogicApp Skill Group",
+            "body": {
+              "Format": "LogicApp",
+              "Skills": [
+                {
+                  "Name": "${1:MyLogicAppSkill}",
+                  "DisplayName": "${2:My Logic App Skill}",
+                  "Description": "${3:Triggers a Logic App}",
+                  "Settings": {
+                    "SubscriptionId": "${4:subscription-id}",
+                    "ResourceGroup": "${5:resource-group}",
+                    "WorkflowName": "${6:workflow-name}",
+                    "TriggerName": "${7:manual}"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "label": "MCP Skill Group",
+            "body": {
+              "Format": "MCP",
+              "Skills": [
+                {
+                  "Name": "${1:MyMcpSkill}",
+                  "DisplayName": "${2:My MCP Skill}",
+                  "Description": "${3:MCP server integration}"
+                }
+              ]
+            }
+          }
+        ],
         "properties": {
           "Format": {
             "type": "string",
             "description": "Tool format type.",
+            "markdownDescription": "**Format** — The type of skills in this group.\n\n- `API` — REST API with OpenAPI spec\n- `KQL` — Kusto Query Language (Defender/Sentinel/Kusto)\n- `GPT` — LLM prompt template\n- `AGENT` / `Agent` — Orchestrator agent skill\n- `LogicApp` — Azure Logic App trigger\n- `MCP` — Model Context Protocol server",
             "enum": ["API", "GPT", "AGENT", "Agent", "KQL", "LogicApp", "MCP"]
           },
           "Settings": {
             "type": "object",
             "description": "Format-level settings (used by API format).",
+            "markdownDescription": "**Group Settings** — Configuration that applies to all skills in this group.\n\nFor API format: set `OpenApiSpecUrl` and `EndpointUrl` here.",
+            "defaultSnippets": [
+              {
+                "label": "API Settings",
+                "body": {
+                  "OpenApiSpecUrl": "${1:https://example.com/openapi.yaml}",
+                  "EndpointUrl": "${2:https://api.example.com}"
+                }
+              },
+              {
+                "label": "API Settings (with SkillContext)",
+                "body": {
+                  "OpenApiSpecUrl": "${1:https://example.com/openapi.yaml}",
+                  "EndpointUrl": "${2:https://api.example.com}",
+                  "EnableSkillContextApi": true
+                }
+              }
+            ],
             "properties": {
               "OpenApiSpecUrl": {
                 "type": "string",
-                "description": "URL to the public OpenAPI specification."
+                "description": "URL to the public OpenAPI specification.",
+                "markdownDescription": "**OpenAPI Spec URL** — Public URL to your OpenAPI 3.0 YAML/JSON spec."
               },
               "EndpointUrl": {
                 "type": "string",
-                "description": "URL to the public endpoint."
+                "description": "URL to the API endpoint.",
+                "markdownDescription": "**Endpoint URL** — Base URL for API calls. Can use `<<SettingName>>` for configurable URLs."
               },
               "EndpointUrlSettingName": {
                 "type": "string",
@@ -311,36 +919,119 @@
               },
               "EnableSkillContextApi": {
                 "type": "boolean",
-                "description": "Enable SkillContext API access for API tools."
+                "description": "Enable SkillContext API access for API tools.",
+                "markdownDescription": "**Enable SkillContext API** — When `true`, your API receives Security Copilot session context.",
+                "default": false
               },
               "PackageUrl": {
                 "type": "string",
-                "description": "Public URL for zip file with KQL template."
+                "description": "Public URL for zip file with KQL template.",
+                "markdownDescription": "**Package URL** — Public URL to a zip file containing KQL template files."
               }
             }
           },
           "Skills": {
             "type": "array",
             "description": "List of skills (tools) in this group.",
+            "markdownDescription": "**Skills** — Individual tools/capabilities in this group.\n\nEach skill has a name, description, inputs, and format-specific settings.",
             "items": {
               "type": "object",
+              "defaultSnippets": [
+                {
+                  "label": "KQL Skill",
+                  "body": {
+                    "Name": "${1:MyKqlSkill}",
+                    "DisplayName": "${2:My KQL Skill}",
+                    "Description": "${3:Description}",
+                    "Inputs": [
+                      {
+                        "Name": "${4:inputParam}",
+                        "Description": "${5:Parameter description}",
+                        "Required": true
+                      }
+                    ],
+                    "Settings": {
+                      "Target": "${6|Defender,Sentinel,Kusto|}",
+                      "Template": "${7:// KQL query using {{inputParam}}}"
+                    }
+                  }
+                },
+                {
+                  "label": "GPT Skill",
+                  "body": {
+                    "Name": "${1:MyGptSkill}",
+                    "DisplayName": "${2:My GPT Skill}",
+                    "Description": "${3:Description}",
+                    "Settings": {
+                      "ModelName": "gpt-4.1",
+                      "Template": "${4:You are a security analyst. {{input}}}"
+                    },
+                    "Inputs": [
+                      {
+                        "Name": "${5:input}",
+                        "Description": "${6:Input description}",
+                        "Required": true
+                      }
+                    ]
+                  }
+                },
+                {
+                  "label": "Agent Skill",
+                  "body": {
+                    "Name": "${1:OrchestratorSkill}",
+                    "DisplayName": "${2:Orchestrator}",
+                    "Description": "${3:Orchestrator skill}",
+                    "Settings": {
+                      "Model": "gpt-4.1",
+                      "Instructions": "${4:Agent instructions}"
+                    },
+                    "Interfaces": ["${5|Agent,InteractiveAgent|}"],
+                    "ChildSkills": ["${6:SkillsetName.SkillName}"]
+                  }
+                },
+                {
+                  "label": "LogicApp Skill",
+                  "body": {
+                    "Name": "${1:MyLogicAppSkill}",
+                    "DisplayName": "${2:My Logic App Skill}",
+                    "Description": "${3:Description}",
+                    "Settings": {
+                      "SubscriptionId": "${4:subscription-id}",
+                      "ResourceGroup": "${5:resource-group}",
+                      "WorkflowName": "${6:workflow-name}",
+                      "TriggerName": "${7:manual}"
+                    }
+                  }
+                },
+                {
+                  "label": "Skill (minimal)",
+                  "body": {
+                    "Name": "${1:MySkill}",
+                    "DisplayName": "${2:My Skill}",
+                    "Description": "${3:Description}"
+                  }
+                }
+              ],
               "properties": {
                 "Name": {
                   "type": "string",
-                  "description": "Internal name for this tool. No whitespace or periods.",
+                  "description": "Internal name. No whitespace or periods.",
+                  "markdownDescription": "**Skill Name** — Internal identifier. No whitespace or periods.\n\nReferenced as `SkillsetName.SkillName` in triggers and ChildSkills.",
                   "pattern": "^[^\\s.]+$"
                 },
                 "DisplayName": {
                   "type": "string",
-                  "description": "Human-readable name for this tool."
+                  "description": "Human-readable skill name."
                 },
                 "Description": {
                   "type": "string",
-                  "description": "Human-readable description for this tool."
+                  "description": "Skill description. Used by Security Copilot to determine when to invoke this skill.",
+                  "markdownDescription": "**Description** — Explains what this skill does.\n\n⚠️ This is critical — Security Copilot uses this to decide when to invoke the skill. Be specific."
                 },
                 "Interfaces": {
                   "type": "array",
                   "description": "Interfaces implemented by this skill.",
+                  "markdownDescription": "**Interfaces** — Special interfaces this skill implements.\n\n- `Agent` — Autonomous agent skill\n- `InteractiveAgent` — Interactive (user-prompted) agent skill",
                   "items": {
                     "type": "string",
                     "enum": ["Agent", "InteractiveAgent"]
@@ -349,25 +1040,48 @@
                 "Inputs": {
                   "type": "array",
                   "description": "Input parameters for the skill.",
+                  "markdownDescription": "**Inputs** — Parameters the skill accepts.\n\nReference in templates as `{{ParameterName}}`.",
                   "items": {
                     "type": "object",
                     "required": ["Name"],
+                    "defaultSnippets": [
+                      {
+                        "label": "Input (required)",
+                        "body": {
+                          "Name": "${1:paramName}",
+                          "Description": "${2:Parameter description}",
+                          "Required": true
+                        }
+                      },
+                      {
+                        "label": "Input (optional with default)",
+                        "body": {
+                          "Name": "${1:paramName}",
+                          "Description": "${2:Parameter description}",
+                          "Required": false,
+                          "DefaultValue": "${3:default}"
+                        }
+                      }
+                    ],
                     "properties": {
                       "Name": {
                         "type": "string",
-                        "description": "Parameter name."
+                        "description": "Parameter name. Reference in templates as {{Name}}.",
+                        "markdownDescription": "**Parameter Name** — Reference in KQL/GPT templates as `{{Name}}`."
                       },
                       "Description": {
                         "type": "string",
-                        "description": "Parameter description."
+                        "description": "Parameter description. Helps Security Copilot extract the right value from user prompts.",
+                        "markdownDescription": "**Description** — Explains what value this parameter expects.\n\nSecurity Copilot uses this to extract the correct value from the user's natural language prompt."
                       },
                       "Required": {
                         "type": "boolean",
-                        "description": "Whether the parameter is required."
+                        "description": "Whether the parameter is required.",
+                        "default": true
                       },
                       "DefaultValue": {
                         "type": "string",
-                        "description": "Default value for the parameter."
+                        "description": "Default value when not provided by the user."
                       }
                     }
                   }
@@ -375,20 +1089,78 @@
                 "Settings": {
                   "type": "object",
                   "description": "Skill-level settings, varies by format.",
+                  "markdownDescription": "**Skill Settings** — Format-specific configuration.\n\n- **KQL**: `Target`, `Template`\n- **GPT**: `ModelName`, `Template`\n- **AGENT**: `Model`, `Instructions`\n- **LogicApp**: `SubscriptionId`, `ResourceGroup`, `WorkflowName`, `TriggerName`",
+                  "defaultSnippets": [
+                    {
+                      "label": "KQL Settings (Defender)",
+                      "body": {
+                        "Target": "Defender",
+                        "Template": "${1:// KQL query}"
+                      }
+                    },
+                    {
+                      "label": "KQL Settings (Sentinel)",
+                      "body": {
+                        "Target": "Sentinel",
+                        "TenantId": "${1:tenant-id}",
+                        "SubscriptionId": "${2:subscription-id}",
+                        "ResourceGroupName": "${3:resource-group}",
+                        "WorkspaceName": "${4:workspace-name}",
+                        "Template": "${5:// KQL query}"
+                      }
+                    },
+                    {
+                      "label": "KQL Settings (Kusto)",
+                      "body": {
+                        "Target": "Kusto",
+                        "Cluster": "${1:https://cluster.region.kusto.windows.net}",
+                        "Database": "${2:database-name}",
+                        "Template": "${3:// KQL query}"
+                      }
+                    },
+                    {
+                      "label": "GPT Settings",
+                      "body": {
+                        "ModelName": "gpt-4.1",
+                        "Template": "${1:You are a helpful security analyst. {{input}}}"
+                      }
+                    },
+                    {
+                      "label": "Agent Settings",
+                      "body": {
+                        "Model": "gpt-4.1",
+                        "Instructions": "${1:You are an agent that...}"
+                      }
+                    },
+                    {
+                      "label": "LogicApp Settings",
+                      "body": {
+                        "SubscriptionId": "${1:subscription-id}",
+                        "ResourceGroup": "${2:resource-group}",
+                        "WorkflowName": "${3:workflow-name}",
+                        "TriggerName": "${4:manual}"
+                      }
+                    }
+                  ],
                   "properties": {
                     "ModelName": {
                       "type": "string",
-                      "description": "GPT model name. Must be gpt-4.1.",
-                      "enum": ["gpt-4.1"]
+                      "description": "GPT model name.",
+                      "markdownDescription": "**Model Name** — The LLM model for GPT skills. Must be `gpt-4.1`.",
+                      "enum": ["gpt-4.1"],
+                      "default": "gpt-4.1"
                     },
                     "Model": {
                       "type": "string",
-                      "description": "Model for Agent format. Must be gpt-4.1.",
-                      "enum": ["gpt-4.1"]
+                      "description": "Model for Agent format.",
+                      "markdownDescription": "**Model** — The LLM model for Agent skills. Must be `gpt-4.1`.",
+                      "enum": ["gpt-4.1"],
+                      "default": "gpt-4.1"
                     },
                     "Template": {
                       "type": "string",
-                      "description": "GPT prompt template or KQL query template. Up to 80,000 chars.",
+                      "description": "GPT prompt template or KQL query. Use {{paramName}} for input references. Max 80,000 chars.",
+                      "markdownDescription": "**Template** — The prompt or query template.\n\n- For **KQL**: Write your Kusto query here\n- For **GPT**: Write your prompt here\n\nUse `{{paramName}}` to reference input parameters.\nUse `<<settingName>>` to reference plugin settings.",
                       "maxLength": 80000
                     },
                     "TemplateUrl": {
@@ -401,20 +1173,24 @@
                     },
                     "Instructions": {
                       "type": "string",
-                      "description": "Agent instructions defining behavior and mission."
+                      "description": "Agent instructions defining behavior and mission.",
+                      "markdownDescription": "**Instructions** — System prompt for the agent.\n\nDefine the agent's purpose, behavior rules, and how it should use its child skills."
                     },
                     "Target": {
                       "type": "string",
                       "description": "KQL target platform.",
+                      "markdownDescription": "**Target** — Where to execute the KQL query.\n\n- `Defender` — Microsoft Defender XDR Advanced Hunting\n- `Sentinel` — Microsoft Sentinel Log Analytics\n- `Kusto` — Azure Data Explorer (Kusto)",
                       "enum": ["Defender", "Sentinel", "Kusto"]
                     },
                     "TenantId": {
                       "type": "string",
-                      "description": "AAD Tenant ID (for Sentinel target)."
+                      "description": "AAD Tenant ID (required for Sentinel target).",
+                      "markdownDescription": "**Tenant ID** — Your Microsoft Entra ID tenant GUID.\n\nRequired when Target is `Sentinel`."
                     },
                     "SubscriptionId": {
                       "type": "string",
-                      "description": "Azure Subscription ID (for Sentinel/LogicApp)."
+                      "description": "Azure Subscription ID (for Sentinel/LogicApp).",
+                      "markdownDescription": "**Subscription ID** — Azure subscription GUID.\n\nRequired for `Sentinel` and `LogicApp` targets."
                     },
                     "ResourceGroupName": {
                       "type": "string",
@@ -426,19 +1202,26 @@
                     },
                     "WorkspaceName": {
                       "type": "string",
-                      "description": "Sentinel workspace name."
+                      "description": "Sentinel Log Analytics workspace name.",
+                      "markdownDescription": "**Workspace Name** — The Log Analytics workspace name.\n\nRequired when Target is `Sentinel`."
                     },
                     "WorkflowName": {
                       "type": "string",
-                      "description": "Logic App workflow name."
+                      "description": "Logic App workflow name.",
+                      "markdownDescription": "**Workflow Name** — The name of the Logic App workflow to trigger."
                     },
                     "TriggerName": {
                       "type": "string",
-                      "description": "Logic App trigger name."
+                      "description": "Logic App trigger name.",
+                      "markdownDescription": "**Trigger Name** — The trigger within the Logic App.\n\nUsually `manual` for HTTP-triggered Logic Apps.",
+                      "examples": ["manual"],
+                      "default": "manual"
                     },
                     "Cluster": {
                       "type": "string",
-                      "description": "Kusto cluster URL."
+                      "description": "Kusto cluster URL.",
+                      "markdownDescription": "**Cluster** — Azure Data Explorer cluster URL.\n\nExample: `https://mycluster.westus.kusto.windows.net`",
+                      "examples": ["https://mycluster.region.kusto.windows.net"]
                     },
                     "Database": {
                       "type": "string",
@@ -456,7 +1239,8 @@
                 },
                 "ChildSkills": {
                   "type": "array",
-                  "description": "List of child skill names the agent can invoke.",
+                  "description": "Skills the agent can invoke. Format: SkillsetName.SkillName",
+                  "markdownDescription": "**Child Skills** — List of skills this agent can call.\n\nFormat: `SkillsetName.SkillName`\n\nThe agent will choose which child skills to invoke based on its instructions.",
                   "items": {
                     "type": "string"
                   }
@@ -464,25 +1248,44 @@
                 "SuggestedPrompts": {
                   "type": "array",
                   "description": "Suggested prompts for interactive agents.",
+                  "markdownDescription": "**Suggested Prompts** — Pre-defined prompts shown to users in the Security Copilot UI.\n\nHelps users discover what the agent can do.",
                   "items": {
                     "type": "object",
+                    "defaultSnippets": [
+                      {
+                        "label": "Suggested Prompt",
+                        "body": {
+                          "Title": "${1:Prompt Title}",
+                          "Prompt": "${2:The actual prompt text}"
+                        }
+                      },
+                      {
+                        "label": "Starter Prompt",
+                        "body": {
+                          "Title": "${1:Prompt Title}",
+                          "Prompt": "${2:The actual prompt text}",
+                          "IsStarterAgent": true
+                        }
+                      }
+                    ],
                     "properties": {
                       "Title": {
                         "type": "string",
-                        "description": "Title of the prompt."
+                        "description": "Short title for the prompt."
                       },
                       "Prompt": {
                         "type": "string",
-                        "description": "Actual prompt text."
+                        "description": "The actual prompt text sent to the agent."
                       },
                       "Personas": {
                         "type": "array",
-                        "description": "Persona types the prompt is aligned to.",
+                        "description": "Persona types the prompt is for.",
                         "items": { "type": "string" }
                       },
                       "IsStarterAgent": {
                         "type": "boolean",
-                        "description": "Whether this is a starter prompt."
+                        "description": "Whether this is a starter prompt shown by default.",
+                        "default": false
                       }
                     }
                   }
