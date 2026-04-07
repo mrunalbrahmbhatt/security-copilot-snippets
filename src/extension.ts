@@ -678,6 +678,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register YAML schema association for Security Copilot manifests
     registerSchemaAssociation(context);
+
+    // Register custom CompletionItemProvider for YAML IntelliSense
+    const yamlSelector: vscode.DocumentSelector = { language: 'yaml', scheme: '*' };
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(yamlSelector, new SecurityCopilotCompletionProvider(), ':', ' ', '\n')
+    );
 }
 
 async function insertTemplate(templateKey: string): Promise<void> {
@@ -732,6 +738,290 @@ function registerSchemaAssociation(context: vscode.ExtensionContext): void {
     if (!schemas[patternKey]) {
         schemas[patternKey] = patterns;
         yamlConfig.update('schemas', schemas, vscode.ConfigurationTarget.Global);
+    }
+}
+
+// Security Copilot YAML IntelliSense provider
+const SC_ENUM_VALUES: Record<string, { values: string[]; detail: string }[]> = {
+    'Format': [
+        { values: ['API'], detail: 'REST API with OpenAPI spec' },
+        { values: ['KQL'], detail: 'Kusto Query Language (Defender/Sentinel/Kusto)' },
+        { values: ['GPT'], detail: 'LLM prompt template skill' },
+        { values: ['AGENT'], detail: 'Orchestrator agent skill' },
+        { values: ['Agent'], detail: 'Orchestrator agent skill (alternate casing)' },
+        { values: ['LogicApp'], detail: 'Azure Logic App trigger' },
+        { values: ['MCP'], detail: 'Model Context Protocol server' },
+    ],
+    'Target': [
+        { values: ['Defender'], detail: 'Microsoft Defender XDR Advanced Hunting' },
+        { values: ['Sentinel'], detail: 'Microsoft Sentinel Log Analytics' },
+        { values: ['Kusto'], detail: 'Azure Data Explorer (Kusto)' },
+    ],
+    'CatalogScope': [
+        { values: ['UserWorkspace'], detail: 'Only the user who uploaded it' },
+        { values: ['Tenant'], detail: 'Everyone in the organization' },
+    ],
+    'Type': [
+        { values: ['AAD'], detail: 'Microsoft Entra ID (service-to-service)' },
+        { values: ['AADDelegated'], detail: 'Microsoft Entra ID (delegated/user context)' },
+        { values: ['ApiKey'], detail: 'API key in header or query parameter' },
+        { values: ['Basic'], detail: 'Basic username/password authentication' },
+        { values: ['ServiceHttp'], detail: 'Custom HTTP authentication' },
+        { values: ['OAuthAuthorizationCodeFlow'], detail: 'OAuth 2.0 authorization code flow' },
+        { values: ['OAuthClientCredentialsFlow'], detail: 'OAuth 2.0 client credentials flow' },
+        { values: ['OAuthPasswordGrantFlow'], detail: 'OAuth 2.0 password grant flow' },
+    ],
+    'Location': [
+        { values: ['Header'], detail: 'API key in HTTP header' },
+        { values: ['QueryParams'], detail: 'API key as URL query parameter' },
+    ],
+    'SettingType': [
+        { values: ['String'], detail: 'Text input' },
+        { values: ['Number'], detail: 'Numeric input' },
+        { values: ['Boolean'], detail: 'True/false toggle' },
+    ],
+    'ModelName': [
+        { values: ['gpt-4.1'], detail: 'GPT-4.1 model (required for GPT skills)' },
+    ],
+    'Model': [
+        { values: ['gpt-4.1'], detail: 'GPT-4.1 model (required for Agent skills)' },
+    ],
+    'AgentSingleInstanceConstraint': [
+        { values: ['None'], detail: 'No deployment constraint' },
+        { values: ['Workspace'], detail: 'One instance per workspace' },
+        { values: ['Tenant'], detail: 'One instance per tenant' },
+    ],
+    'PreviewState': [
+        { values: ['Private'], detail: 'Only visible to the creator' },
+        { values: ['Public'], detail: 'Visible to all users in scope' },
+    ],
+};
+
+// Top-level keys and their descriptions
+const SC_TOP_LEVEL_KEYS: { key: string; detail: string }[] = [
+    { key: 'Descriptor', detail: 'Plugin/skillset metadata (name, description, auth)' },
+    { key: 'AgentDefinitions', detail: 'Agent configuration definitions' },
+    { key: 'SkillGroups', detail: 'Tool definitions grouped by format' },
+];
+
+// Descriptor-level keys
+const SC_DESCRIPTOR_KEYS: { key: string; detail: string }[] = [
+    { key: 'Name', detail: 'Internal name (no spaces/special chars)' },
+    { key: 'DisplayName', detail: 'Human-readable name for the UI' },
+    { key: 'Description', detail: 'What this plugin does' },
+    { key: 'CatalogScope', detail: 'UserWorkspace or Tenant' },
+    { key: 'Icon', detail: 'Icon URL or data URI' },
+    { key: 'SupportedAuthTypes', detail: 'List of auth types (AAD, ApiKey, etc.)' },
+    { key: 'Authorization', detail: 'Auth configuration object' },
+    { key: 'Settings', detail: 'User-configurable plugin settings' },
+];
+
+// SkillGroups item keys
+const SC_SKILLGROUP_KEYS: { key: string; detail: string }[] = [
+    { key: 'Format', detail: 'API, KQL, GPT, AGENT, LogicApp, MCP' },
+    { key: 'Settings', detail: 'Group-level settings (OpenApiSpecUrl, etc.)' },
+    { key: 'Skills', detail: 'List of skills in this group' },
+];
+
+// Skill-level keys
+const SC_SKILL_KEYS: { key: string; detail: string }[] = [
+    { key: 'Name', detail: 'Internal skill name (no spaces/periods)' },
+    { key: 'DisplayName', detail: 'Human-readable skill name' },
+    { key: 'Description', detail: 'What this skill does (used for invocation routing)' },
+    { key: 'Inputs', detail: 'Input parameters for the skill' },
+    { key: 'Settings', detail: 'Skill-level settings (Target, Template, etc.)' },
+    { key: 'Interfaces', detail: 'Agent or InteractiveAgent' },
+    { key: 'ChildSkills', detail: 'Skills the agent can invoke' },
+    { key: 'SuggestedPrompts', detail: 'Prompt suggestions for interactive agents' },
+];
+
+// Skill Settings keys
+const SC_SKILL_SETTINGS_KEYS: { key: string; detail: string }[] = [
+    { key: 'Target', detail: 'KQL target: Defender, Sentinel, or Kusto' },
+    { key: 'Template', detail: 'KQL query or GPT prompt template' },
+    { key: 'TemplateUrl', detail: 'URL to download KQL template' },
+    { key: 'TemplateFile', detail: 'Relative path to KQL template in zip' },
+    { key: 'ModelName', detail: 'gpt-4.1 (for GPT skills)' },
+    { key: 'Model', detail: 'gpt-4.1 (for Agent skills)' },
+    { key: 'Instructions', detail: 'Agent instructions/system prompt' },
+    { key: 'TenantId', detail: 'Entra ID tenant GUID (Sentinel)' },
+    { key: 'SubscriptionId', detail: 'Azure subscription GUID' },
+    { key: 'ResourceGroupName', detail: 'Resource group (Sentinel)' },
+    { key: 'ResourceGroup', detail: 'Resource group (LogicApp)' },
+    { key: 'WorkspaceName', detail: 'Sentinel workspace name' },
+    { key: 'WorkflowName', detail: 'Logic App workflow name' },
+    { key: 'TriggerName', detail: 'Logic App trigger (usually "manual")' },
+    { key: 'Cluster', detail: 'Kusto cluster URL' },
+    { key: 'Database', detail: 'Kusto database name' },
+    { key: 'OpenApiSpecUrl', detail: 'URL to OpenAPI spec' },
+    { key: 'EndpointUrl', detail: 'API endpoint URL' },
+];
+
+// SupportedAuthTypes array values
+const SC_AUTH_TYPE_VALUES: { value: string; detail: string }[] = [
+    { value: 'None', detail: 'No authentication' },
+    { value: 'AAD', detail: 'Microsoft Entra ID (service-to-service)' },
+    { value: 'AADDelegated', detail: 'Microsoft Entra ID (delegated)' },
+    { value: 'ApiKey', detail: 'API key authentication' },
+    { value: 'Basic', detail: 'Basic username/password' },
+    { value: 'ServiceHttp', detail: 'Custom HTTP auth' },
+    { value: 'OAuthAuthorizationCodeFlow', detail: 'OAuth 2.0 auth code' },
+    { value: 'OAuthClientCredentialsFlow', detail: 'OAuth 2.0 client credentials' },
+    { value: 'OAuthPasswordGrantFlow', detail: 'OAuth 2.0 password grant' },
+];
+
+// Interfaces array values
+const SC_INTERFACE_VALUES: { value: string; detail: string }[] = [
+    { value: 'Agent', detail: 'Autonomous agent skill' },
+    { value: 'InteractiveAgent', detail: 'Interactive (user-prompted) agent skill' },
+];
+
+class SecurityCopilotCompletionProvider implements vscode.CompletionItemProvider {
+    provideCompletionItems(
+        document: vscode.TextDocument,
+        position: vscode.Position,
+    ): vscode.CompletionItem[] | undefined {
+        // Only provide completions for files that look like Security Copilot manifests
+        const text = document.getText();
+        if (!text.includes('Descriptor:') && !text.includes('SkillGroups:') && !text.includes('security-copilot')) {
+            return undefined;
+        }
+
+        const line = document.lineAt(position.line).text;
+        const linePrefix = line.substring(0, position.character);
+
+        // Detect the context: are we after a key's colon (value position)?
+        const keyValueMatch = linePrefix.match(/^\s*(\w+)\s*:\s*$/);
+        if (keyValueMatch) {
+            const key = keyValueMatch[1];
+            return this.getEnumCompletions(key);
+        }
+
+        // Detect if we're typing a value after "Key: " (partial value)
+        const partialValueMatch = linePrefix.match(/^\s*(\w+)\s*:\s+(\S*)$/);
+        if (partialValueMatch) {
+            const key = partialValueMatch[1];
+            return this.getEnumCompletions(key);
+        }
+
+        // Detect if we're inside an array item (after "- ") for SupportedAuthTypes or Interfaces
+        const arrayItemMatch = linePrefix.match(/^\s*-\s*(\S*)$/);
+        if (arrayItemMatch) {
+            const context = this.getArrayContext(document, position);
+            if (context === 'SupportedAuthTypes') {
+                return SC_AUTH_TYPE_VALUES.map(v => {
+                    const item = new vscode.CompletionItem(v.value, vscode.CompletionItemKind.EnumMember);
+                    item.detail = v.detail;
+                    item.sortText = `0_${v.value}`;
+                    return item;
+                });
+            }
+            if (context === 'Interfaces') {
+                return SC_INTERFACE_VALUES.map(v => {
+                    const item = new vscode.CompletionItem(v.value, vscode.CompletionItemKind.EnumMember);
+                    item.detail = v.detail;
+                    item.sortText = `0_${v.value}`;
+                    return item;
+                });
+            }
+        }
+
+        // Detect key completions based on indentation context
+        const keyTypingMatch = linePrefix.match(/^(\s*)(\w*)$/);
+        if (keyTypingMatch) {
+            const indent = keyTypingMatch[1].length;
+            return this.getKeyCompletions(document, position, indent);
+        }
+
+        return undefined;
+    }
+
+    private getEnumCompletions(key: string): vscode.CompletionItem[] | undefined {
+        const entries = SC_ENUM_VALUES[key];
+        if (!entries) {
+            return undefined;
+        }
+
+        return entries.map((entry, i) => {
+            const value = entry.values[0];
+            const item = new vscode.CompletionItem(value, vscode.CompletionItemKind.EnumMember);
+            item.detail = entry.detail;
+            item.documentation = new vscode.MarkdownString(`Security Copilot \`${key}\` value: **${value}**\n\n${entry.detail}`);
+            item.sortText = `0_${String(i).padStart(2, '0')}`;
+            item.preselect = i === 0;
+            return item;
+        });
+    }
+
+    private getArrayContext(document: vscode.TextDocument, position: vscode.Position): string | undefined {
+        // Walk up to find the parent key
+        for (let i = position.line - 1; i >= 0; i--) {
+            const prevLine = document.lineAt(i).text;
+            const parentMatch = prevLine.match(/^\s*(\w+)\s*:/);
+            if (parentMatch) {
+                return parentMatch[1];
+            }
+        }
+        return undefined;
+    }
+
+    private getKeyCompletions(document: vscode.TextDocument, position: vscode.Position, indent: number): vscode.CompletionItem[] | undefined {
+        // Determine context by looking at parent lines
+        if (indent === 0) {
+            return this.makeKeyItems(SC_TOP_LEVEL_KEYS);
+        }
+
+        // Walk upward to determine the context
+        for (let i = position.line - 1; i >= 0; i--) {
+            const prevLine = document.lineAt(i).text;
+            const prevIndent = prevLine.search(/\S/);
+            if (prevIndent < 0) { continue; }
+
+            if (prevIndent < indent) {
+                const parentKey = prevLine.match(/^\s*-?\s*(\w+)\s*:/)?.[1];
+                if (parentKey === 'Descriptor') { return this.makeKeyItems(SC_DESCRIPTOR_KEYS); }
+                if (parentKey === 'Settings') { return this.makeKeyItems(SC_SKILL_SETTINGS_KEYS); }
+                if (parentKey === 'Skills') { return this.makeKeyItems(SC_SKILL_KEYS); }
+                if (parentKey === 'SkillGroups') { return this.makeKeyItems(SC_SKILLGROUP_KEYS); }
+                if (parentKey === 'Authorization') {
+                    return this.makeKeyItems([
+                        { key: 'Type', detail: 'Authentication type' },
+                        { key: 'EntraScopes', detail: 'Entra ID scopes' },
+                        { key: 'Key', detail: 'API key header/param name' },
+                        { key: 'Location', detail: 'Header or QueryParams' },
+                        { key: 'Value', detail: 'Key/token value' },
+                        { key: 'AuthScheme', detail: 'Bearer, Basic, or empty' },
+                        { key: 'ClientId', detail: 'OAuth client ID' },
+                        { key: 'ClientSecret', detail: 'OAuth client secret' },
+                        { key: 'TokenEndpoint', detail: 'OAuth token endpoint URL' },
+                        { key: 'AuthorizationEndpoint', detail: 'OAuth authorize URL' },
+                        { key: 'Scopes', detail: 'OAuth scopes' },
+                        { key: 'AccessToken', detail: 'ServiceHttp access token' },
+                        { key: 'Username', detail: 'Basic auth username' },
+                        { key: 'Password', detail: 'Basic auth password' },
+                    ]);
+                }
+                // Inside a skill item (after "- Name:")
+                if (prevLine.match(/^\s*-\s*Name\s*:/)) {
+                    return this.makeKeyItems(SC_SKILL_KEYS);
+                }
+                break;
+            }
+        }
+
+        return undefined;
+    }
+
+    private makeKeyItems(keys: { key: string; detail: string }[]): vscode.CompletionItem[] {
+        return keys.map((k, i) => {
+            const item = new vscode.CompletionItem(k.key, vscode.CompletionItemKind.Property);
+            item.detail = `Security Copilot: ${k.detail}`;
+            item.insertText = `${k.key}: `;
+            item.sortText = `0_${String(i).padStart(2, '0')}`;
+            // Trigger suggest again after inserting the key
+            item.command = { command: 'editor.action.triggerSuggest', title: 'Suggest' };
+            return item;
+        });
     }
 }
 
