@@ -2,6 +2,10 @@
 
 VS Code extension providing code snippets, file scaffolding, YAML validation, and command-palette templates for **Microsoft Security Copilot** agent, plugin, and OpenAPI manifest development.
 
+## Demo
+
+![Security Copilot Snippets Demo](images/demo.gif)
+
 ## Features
 
 ### Snippets (Type & Tab)
