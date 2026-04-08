@@ -100,8 +100,13 @@ Right-click in any YAML file to access the **Security Copilot Templates** submen
 
 ## Installation
 
-### From VS Code
-Search for **Security Copilot Snippets** in the Extensions marketplace, or install from [Open VSX](https://open-vsx.org/extension/mrbrahmbhatt/security-copilot-snippets).
+### From VS Code Extension Marketplace
+1. Open VS Code
+2. Click the **Extensions** icon in the Activity Bar (or press `Ctrl+Shift+X`)
+3. Search for **Security Copilot Snippets**
+4. Click **Install** on the extension by **mrbrahmbhatt**
+
+Also available on [Open VSX](https://open-vsx.org/extension/mrbrahmbhatt/security-copilot-snippets).
 
 ### From VSIX
 1. Download the `.vsix` file
